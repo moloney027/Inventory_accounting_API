@@ -1,10 +1,10 @@
-package com.rnsd.storage;
+package com.rnsd.mystorage;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class StorageApplicationTests {
+class MyStorageApplicationTests {
 
 	@Test
 	void contextLoads() {
