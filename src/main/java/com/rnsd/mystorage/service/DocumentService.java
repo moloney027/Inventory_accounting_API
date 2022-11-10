@@ -26,7 +26,7 @@ public class DocumentService {
 
     @Transactional
     public List<DocumentReceipt> createDocumentReceipt(DocumentReceiptModel documentReceiptModel) {
-        List<DocumentReceipt> documentsReceipt = new ArrayList<>();
+        List<DocumentReceipt> documentReceiptList = new ArrayList<>();
         String number = documentReceiptModel.getDocumentNumber();
         Storage storage = storageRepository.findByIdAndArchive(documentReceiptModel.getStorageId(), false)
                 .orElseThrow(() -> new CustomException(
@@ -44,16 +44,16 @@ public class DocumentService {
             Long count = productInDocumentModel.getCount();
             product.setLastPurchasePrice(price);
             DocumentReceipt documentReceipt = new DocumentReceipt(null, number, storage, product, count, price);
-            documentReceiptRepository.save(documentReceipt);
-            documentsReceipt.add(documentReceipt);
+            documentReceipt = documentReceiptRepository.save(documentReceipt);
+            documentReceiptList.add(documentReceipt);
             inventoryControlService.recalculateCountProduct(storage, product, count);
         }
-        return documentsReceipt;
+        return documentReceiptList;
     }
 
     @Transactional
     public List<DocumentSale> createDocumentSale(DocumentSaleModel documentSaleModel) {
-        List<DocumentSale> documentsSale = new ArrayList<>();
+        List<DocumentSale> documentSaleList = new ArrayList<>();
         String number = documentSaleModel.getDocumentNumber();
         Storage storage = storageRepository.findByIdAndArchive(documentSaleModel.getStorageId(), false)
                 .orElseThrow(() -> new CustomException(
@@ -71,16 +71,16 @@ public class DocumentService {
             Long count = productInDocumentModel.getCount();
             product.setLastSalePrice(price);
             DocumentSale documentSale = new DocumentSale(null, number, storage, product, count, price);
-            documentSaleRepository.save(documentSale);
-            documentsSale.add(documentSale);
+            documentSale = documentSaleRepository.save(documentSale);
+            documentSaleList.add(documentSale);
             inventoryControlService.recalculateCountProduct(storage, product, -count);
         }
-        return documentsSale;
+        return documentSaleList;
     }
 
     @Transactional
     public List<DocumentMoving> createDocumentMoving(DocumentMovingModel documentMovingModel) {
-        List<DocumentMoving> documentsMoving = new ArrayList<>();
+        List<DocumentMoving> documentMovingList = new ArrayList<>();
         String number = documentMovingModel.getDocumentNumber();
         Storage fromStorage = storageRepository.findByIdAndArchive(documentMovingModel.getFromStorageId(), false)
                 .orElseThrow(() -> new CustomException(
@@ -100,11 +100,11 @@ public class DocumentService {
                     ));
             Long count = productInDocumentModel.getCount();
             DocumentMoving documentMoving = new DocumentMoving(null, number, fromStorage, toStorage, product, count);
-            documentMovingRepository.save(documentMoving);
-            documentsMoving.add(documentMoving);
+            documentMoving = documentMovingRepository.save(documentMoving);
+            documentMovingList.add(documentMoving);
             inventoryControlService.recalculateCountProduct(fromStorage, product, -count);
             inventoryControlService.recalculateCountProduct(toStorage, product, count);
         }
-        return documentsMoving;
+        return documentMovingList;
     }
 }
