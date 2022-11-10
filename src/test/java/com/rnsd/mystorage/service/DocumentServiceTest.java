@@ -55,8 +55,6 @@ class DocumentServiceTest {
     @BeforeEach
     public void setUp() {
         when(storageRepository.findByIdAndArchive(storageId, false)).thenReturn(Optional.of(storage));
-        when(storageRepository.findByIdAndArchive(secondStorageId, false))
-                .thenReturn(Optional.of(secondStorage));
         when(productRepository.findByIdAndArchive(productId, false)).thenReturn(Optional.of(product));
     }
 
@@ -125,6 +123,8 @@ class DocumentServiceTest {
 
     @Test
     void createDocumentMoving() {
+        when(storageRepository.findByIdAndArchive(secondStorageId, false))
+                .thenReturn(Optional.of(secondStorage));
         DocumentMovingModel documentMovingModel = mock(DocumentMovingModel.class);
         when(documentMovingModel.getDocumentNumber()).thenReturn(documentNumber);
         when(documentMovingModel.getFromStorageId()).thenReturn(storageId);
