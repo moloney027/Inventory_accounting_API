@@ -1,7 +1,11 @@
 package com.rnsd.mystorage.controller;
 
 import com.rnsd.mystorage.MyStorageApplication;
+import com.rnsd.mystorage.model.security.JwtRequestModel;
+import com.rnsd.mystorage.model.security.JwtResponseModel;
+import com.rnsd.mystorage.service.security.AuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +31,23 @@ class DocumentControllerGetMappingTest {
     @Autowired
     MockMvc mvc;
 
+    @Autowired
+    AuthService authService;
+
+    private String  accessToken;
+
+    @BeforeEach
+    void setUp() {
+        JwtRequestModel jwtRequestModel = new JwtRequestModel();
+        jwtRequestModel.setLogin("admin");
+        jwtRequestModel.setPassword("admin");
+        JwtResponseModel login = authService.login(jwtRequestModel);
+        accessToken = login.getAccessToken();
+    }
+
     @Test
     void getAllDocumentsReceipt() throws Exception {
-        mvc.perform(get("/documents/receipt"))
+        mvc.perform(get("/documents/receipt").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(4)))
                 .andExpect(jsonPath("$.content[0].number", is("00001R")))
@@ -41,7 +59,7 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getAllDocumentsSale() throws Exception {
-        mvc.perform(get("/documents/sale"))
+        mvc.perform(get("/documents/sale").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(4)))
                 .andExpect(jsonPath("$.content[0].number", is("00001S")))
@@ -53,7 +71,7 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getAllDocumentsMoving() throws Exception {
-        mvc.perform(get("/documents/moving"))
+        mvc.perform(get("/documents/moving").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(4)))
                 .andExpect(jsonPath("$.content[0].number", is("00001M")))
@@ -65,7 +83,7 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getDocumentReceiptById() throws Exception {
-        mvc.perform(get("/documents/receipt/{id}", "303"))
+        mvc.perform(get("/documents/receipt/{id}", "303").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", is("00003R")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
@@ -73,7 +91,7 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getDocumentSaleById() throws Exception {
-        mvc.perform(get("/documents/sale/{id}", "401"))
+        mvc.perform(get("/documents/sale/{id}", "401").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", is("00001S")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
@@ -81,7 +99,7 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getDocumentMovingById() throws Exception {
-        mvc.perform(get("/documents/moving/{id}", "504"))
+        mvc.perform(get("/documents/moving/{id}", "504").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", is("00004M")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));

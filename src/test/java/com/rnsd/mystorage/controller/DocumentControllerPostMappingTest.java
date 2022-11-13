@@ -6,9 +6,13 @@ import com.rnsd.mystorage.entity.InventoryControl;
 import com.rnsd.mystorage.entity.Product;
 import com.rnsd.mystorage.entity.Storage;
 import com.rnsd.mystorage.model.*;
+import com.rnsd.mystorage.model.security.JwtRequestModel;
+import com.rnsd.mystorage.model.security.JwtResponseModel;
 import com.rnsd.mystorage.repository.InventoryControlRepository;
 import com.rnsd.mystorage.repository.ProductRepository;
+import com.rnsd.mystorage.service.security.AuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +46,20 @@ public class DocumentControllerPostMappingTest {
     @Autowired
     ProductRepository productRepository;
 
+    @Autowired
+    AuthService authService;
+
+    private String  accessToken;
+
+    @BeforeEach
+    void setUp() {
+        JwtRequestModel jwtRequestModel = new JwtRequestModel();
+        jwtRequestModel.setLogin("admin");
+        jwtRequestModel.setPassword("admin");
+        JwtResponseModel login = authService.login(jwtRequestModel);
+        accessToken = login.getAccessToken();
+    }
+
     /**
      * Тест метода POST (создание документа "Поступление") с проверкой того, что у поступивших на склад товаров
      * установилось верное значение цены последней закупки, указанное в документе, а таккже что произошел верный
@@ -63,6 +81,7 @@ public class DocumentControllerPostMappingTest {
                 .findByStorageAndProduct(new Storage(201L), new Product(101L))
                 .map(InventoryControl::getCount).orElse(0L);
         mvc.perform(post("/documents/receipt")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentReceiptModel)))
                 .andExpect(status().isOk())
@@ -97,6 +116,7 @@ public class DocumentControllerPostMappingTest {
         DocumentReceiptModel documentReceiptModelWithNegativePrice = new DocumentReceiptModel(
                 "000R", 201L, List.of(productInDocumentModelWithNegativePrice));
         mvc.perform(post("/documents/receipt")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentReceiptModelWithNegativePrice)))
                 .andExpect(status().is5xxServerError())
@@ -114,6 +134,7 @@ public class DocumentControllerPostMappingTest {
                 "  ]\n" +
                 "}";
         mvc.perform(post("/documents/receipt")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(documentReceiptModelWithNegativePrice2))
                 .andExpect(status().is5xxServerError())
@@ -131,6 +152,7 @@ public class DocumentControllerPostMappingTest {
                 "  ]\n" +
                 "}";
         mvc.perform(post("/documents/receipt")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(documentReceiptModelWithNegativePrice3))
                 .andExpect(status().is5xxServerError())
@@ -153,6 +175,7 @@ public class DocumentControllerPostMappingTest {
                 List.of(productInDocumentModelForReceipt1, productInDocumentModelForReceipt2)
         );
         mvc.perform(post("/documents/receipt")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentReceiptModel)))
                 .andExpect(status().isOk())
@@ -172,6 +195,7 @@ public class DocumentControllerPostMappingTest {
                 .findByStorageAndProduct(new Storage(202L), new Product(101L))
                 .map(InventoryControl::getCount).orElse(0L);
         mvc.perform(post("/documents/sale")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentSaleModel)))
                 .andExpect(status().isOk())
@@ -207,6 +231,7 @@ public class DocumentControllerPostMappingTest {
         DocumentSaleModel documentSaleModelWithNegativePrice = new DocumentSaleModel(
                 "000S", 201L, List.of(productInDocumentModelWithNegativePrice));
         mvc.perform(post("/documents/sale")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentSaleModelWithNegativePrice)))
                 .andExpect(status().is5xxServerError())
@@ -224,6 +249,7 @@ public class DocumentControllerPostMappingTest {
                 "  ]\n" +
                 "}";
         mvc.perform(post("/documents/sale")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(documentSaleModelWithNegativePrice2))
                 .andExpect(status().is5xxServerError())
@@ -241,6 +267,7 @@ public class DocumentControllerPostMappingTest {
                 "  ]\n" +
                 "}";
         mvc.perform(post("/documents/sale")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(documentSaleModelWithNegativePrice3))
                 .andExpect(status().is5xxServerError())
@@ -261,6 +288,7 @@ public class DocumentControllerPostMappingTest {
                 "00001M", 203L, List.of(productInDocumentModelForReceipt)
         );
         mvc.perform(post("/documents/receipt")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentReceiptModel)))
                 .andExpect(status().isOk())
@@ -279,6 +307,7 @@ public class DocumentControllerPostMappingTest {
                 .findByStorageAndProduct(new Storage(201L), new Product(102L))
                 .map(InventoryControl::getCount).orElse(0L);
         mvc.perform(post("/documents/moving")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentMovingModel)))
                 .andExpect(status().isOk())
@@ -310,6 +339,7 @@ public class DocumentControllerPostMappingTest {
                 List.of(productInDocumentForMovingModel)
         );
         mvc.perform(post("/documents/moving")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentMovingModel)))
                 .andExpect(status().is5xxServerError())
@@ -327,6 +357,7 @@ public class DocumentControllerPostMappingTest {
                 "  ]\n" +
                 "}";
         mvc.perform(post("/documents/moving")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(documentMovingModelWithNegativePrice2))
                 .andExpect(status().is5xxServerError())
@@ -344,6 +375,7 @@ public class DocumentControllerPostMappingTest {
                 "  ]\n" +
                 "}";
         mvc.perform(post("/documents/moving")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(documentMovingModelWithNegativePrice3))
                 .andExpect(status().is5xxServerError())

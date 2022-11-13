@@ -74,7 +74,7 @@ public class DocumentService {
             if (inventoryControlRepository.findByStorageAndProduct(storage, product)
                     .map(InventoryControl::getCount).orElse(0L) < count) {
                 throw new CustomException("The quantity of the product sold cannot be greater than the quantity of " +
-                        "the item available", HttpStatus.BAD_REQUEST);
+                        "the product available", HttpStatus.BAD_REQUEST);
             }
             BigDecimal price = productInDocumentModel.getPrice();
             product.setLastSalePrice(price);

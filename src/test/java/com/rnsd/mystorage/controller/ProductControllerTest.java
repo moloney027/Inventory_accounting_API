@@ -3,8 +3,12 @@ package com.rnsd.mystorage.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rnsd.mystorage.MyStorageApplication;
 import com.rnsd.mystorage.entity.Product;
+import com.rnsd.mystorage.model.security.JwtRequestModel;
+import com.rnsd.mystorage.model.security.JwtResponseModel;
 import com.rnsd.mystorage.repository.ProductRepository;
+import com.rnsd.mystorage.service.security.AuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,39 +40,51 @@ class ProductControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    AuthService authService;
+
+    private String  accessToken;
+
+    @BeforeEach
+    void setUp() {
+        JwtRequestModel jwtRequestModel = new JwtRequestModel();
+        jwtRequestModel.setLogin("admin");
+        jwtRequestModel.setPassword("admin");
+        JwtResponseModel login = authService.login(jwtRequestModel);
+        accessToken = login.getAccessToken();
+    }
+
     @Test
     void getAllProducts() throws Exception {
-        mvc.perform(get("/products"))
+        mvc.perform(get("/products").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(3)))
-                .andExpect(jsonPath("$.content[0].id", is(101)))
-                .andExpect(jsonPath("$.content[0].article", is("001")))
-                .andExpect(jsonPath("$.content[0].name", is("test product 1")))
-                .andExpect(jsonPath("$.content[0].lastPurchasePrice", nullValue()))
-                .andExpect(jsonPath("$.content[0].lastSalePrice", nullValue()))
-                .andExpect(jsonPath("$.content[0].archive", is(false)))
-                .andExpect(jsonPath("$.content[1].id", is(102)))
-                .andExpect(jsonPath("$.content[1].article", is("002")))
-                .andExpect(jsonPath("$.content[1].name", is("test product 2")))
-                .andExpect(jsonPath("$.content[1].lastPurchasePrice", nullValue()))
-                .andExpect(jsonPath("$.content[1].lastSalePrice", nullValue()))
-                .andExpect(jsonPath("$.content[1].archive", is(false)))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
     }
 
     @Test
     void getProductById() throws Exception {
-        mvc.perform(get("/products/{id}", "101"))
+        Product productForGet = new Product(
+                null, "0001", "test product",
+                null, null, false
+        );
+        productForGet = productRepository.save(productForGet);
+        mvc.perform(get("/products/{id}", productForGet.getId())
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(101)))
-                .andExpect(jsonPath("$.article", is("001")))
-                .andExpect(jsonPath("$.name", is("test product 1")))
+                .andExpect(jsonPath("$.id", is(productForGet.getId().intValue())))
+                .andExpect(jsonPath("$.article", is("0001")))
+                .andExpect(jsonPath("$.name", is("test product")))
                 .andExpect(jsonPath("$.lastPurchasePrice", nullValue()))
                 .andExpect(jsonPath("$.lastSalePrice", nullValue()))
                 .andExpect(jsonPath("$.archive", is(false)))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
 
-        mvc.perform(get("/products/{id}", "202"))
+        Product productForGet1 = new Product(
+                null, "0001", "test product",
+                null, null, true
+        );
+        productForGet1 = productRepository.save(productForGet1);
+        mvc.perform(get("/products/{id}", productForGet1.getId()))
                 .andExpect(status().is4xxClientError())
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
     }
@@ -76,10 +92,11 @@ class ProductControllerTest {
     @Test
     void createProduct() throws Exception {
         Product product = new Product(
-                null, "100500", "New test product",
+                null, "0001", "New test product",
                 null, null, false
         );
         mvc.perform(post("/products")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isOk())
@@ -102,11 +119,17 @@ class ProductControllerTest {
 
     @Test
     void updateProduct() throws Exception {
+        Product productForUpdate = new Product(
+                null, "0001", "test product",
+                null, null, false
+        );
+        productForUpdate = productRepository.save(productForUpdate);
         Product product = new Product(
                 null, "Update article", "Update product",
                 null, null, false
         );
-        mvc.perform(put("/products/{id}", "104")
+        mvc.perform(put("/products/{id}", productForUpdate.getId())
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isOk())
@@ -120,7 +143,8 @@ class ProductControllerTest {
                 null, null, false
         );
         productForArchive = productRepository.save(productForArchive);
-        mvc.perform(put("/products/move-archive/{id}", productForArchive.getId()))
+        mvc.perform(put("/products/move-archive/{id}", productForArchive.getId())
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.archive", is(true)))
                 .andDo(result -> {
@@ -137,7 +161,8 @@ class ProductControllerTest {
                 null, null, true
         );
         productForDelete = productRepository.save(productForDelete);
-        mvc.perform(delete("/products/{id}", productForDelete.getId()))
+        mvc.perform(delete("/products/{id}", productForDelete.getId())
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
     }
@@ -149,6 +174,7 @@ class ProductControllerTest {
                 BigDecimal.valueOf(-50.776), null, false
         );
         mvc.perform(post("/products")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productWithNegativePrice)))
                 .andExpect(status().is4xxClientError())

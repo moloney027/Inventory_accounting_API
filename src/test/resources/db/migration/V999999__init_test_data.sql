@@ -81,3 +81,7 @@ INSERT INTO public.document_moving(
 INSERT INTO public.document_moving(
     id, count, number, from_storage_id, product_id, to_storage_id)
     VALUES (504, 68, '00004M', 202, 104, 203);
+
+INSERT INTO public."user"(
+	id, login, password, first_name, last_name, role, password_secret)
+	VALUES (0,	'admin', 'hkW6fQ==', 'admin', 'admin', 'ADMIN', '9L5NqBq3uQa6CXWJ+/unXmzOVsmPL7o9HiPox9VGKL0NG94=');

@@ -28,6 +28,7 @@ class DocumentServiceTest {
     @Mock DocumentReceiptRepository documentReceiptRepository;
     @Mock DocumentSaleRepository documentSaleRepository;
     @Mock DocumentMovingRepository documentMovingRepository;
+    @Mock InventoryControlRepository inventoryControlRepository;
     @Mock InventoryControlService inventoryControlService;
     @InjectMocks DocumentService documentService;
 
@@ -37,12 +38,15 @@ class DocumentServiceTest {
     Storage secondStorage;
     @Mock
     Product product;
+    @Mock
+    InventoryControl inventoryControl;
 
     String documentNumber = "#123456";
     Long storageId = 1L;
     Long secondStorageId = 2L;
     Long productId = 3L;
     Long count = 5L;
+    Long inventoryControlCount = 20L;
     BigDecimal price = BigDecimal.TEN;
 
     @Captor
@@ -106,8 +110,11 @@ class DocumentServiceTest {
         ProductInDocumentModel productInDocumentModel = mock(ProductInDocumentModel.class);
         when(documentSaleModel.getProductInfo()).thenReturn(List.of(productInDocumentModel));
         when(productInDocumentModel.getProductId()).thenReturn(productId);
-        when(productInDocumentModel.getPrice()).thenReturn(price);
         when(productInDocumentModel.getCount()).thenReturn(count);
+        when(inventoryControlRepository.findByStorageAndProduct(storage, product))
+                .thenReturn(Optional.of(inventoryControl));
+        when(inventoryControl.getCount()).thenReturn(inventoryControlCount);
+        when(productInDocumentModel.getPrice()).thenReturn(price);
 
         DocumentSale afterSaveDocumentSale = mock(DocumentSale.class);
         when(documentSaleRepository.save(documentSaleArgumentCaptor.capture())).thenReturn(afterSaveDocumentSale);
@@ -146,6 +153,9 @@ class DocumentServiceTest {
         when(documentMovingModel.getProductInfo()).thenReturn(List.of(productInDocumentForMovingModel));
         when(productInDocumentForMovingModel.getProductId()).thenReturn(productId);
         when(productInDocumentForMovingModel.getCount()).thenReturn(count);
+        when(inventoryControlRepository.findByStorageAndProduct(storage, product))
+                .thenReturn(Optional.of(inventoryControl));
+        when(inventoryControl.getCount()).thenReturn(inventoryControlCount);
 
         DocumentMoving afterSaveDocumentMoving = mock(DocumentMoving.class);
         when(documentMovingRepository.save(documentMovingArgumentCaptor.capture())).thenReturn(afterSaveDocumentMoving);
