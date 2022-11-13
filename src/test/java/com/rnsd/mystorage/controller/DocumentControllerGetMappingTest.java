@@ -15,7 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,11 +48,6 @@ class DocumentControllerGetMappingTest {
     void getAllDocumentsReceipt() throws Exception {
         mvc.perform(get("/documents/receipt").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(4)))
-                .andExpect(jsonPath("$.content[0].number", is("00001R")))
-                .andExpect(jsonPath("$.content[1].number", is("00002R")))
-                .andExpect(jsonPath("$.content[2].number", is("00003R")))
-                .andExpect(jsonPath("$.content[3].number", is("00004R")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
     }
 
@@ -61,11 +55,6 @@ class DocumentControllerGetMappingTest {
     void getAllDocumentsSale() throws Exception {
         mvc.perform(get("/documents/sale").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(4)))
-                .andExpect(jsonPath("$.content[0].number", is("00001S")))
-                .andExpect(jsonPath("$.content[1].number", is("00002S")))
-                .andExpect(jsonPath("$.content[2].number", is("00003S")))
-                .andExpect(jsonPath("$.content[3].number", is("00004S")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
     }
 
@@ -73,11 +62,6 @@ class DocumentControllerGetMappingTest {
     void getAllDocumentsMoving() throws Exception {
         mvc.perform(get("/documents/moving").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(4)))
-                .andExpect(jsonPath("$.content[0].number", is("00001M")))
-                .andExpect(jsonPath("$.content[1].number", is("00002M")))
-                .andExpect(jsonPath("$.content[2].number", is("00003M")))
-                .andExpect(jsonPath("$.content[3].number", is("00004M")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
     }
 
