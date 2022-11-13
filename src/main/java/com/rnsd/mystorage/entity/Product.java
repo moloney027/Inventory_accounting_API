@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -37,15 +38,19 @@ public class Product {
     @Schema(description = "Наименование")
     private String name;
 
+    @Positive
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Цена последней закупки")
     private BigDecimal lastPurchasePrice;
 
+    @Positive
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Цена последней продажи")
     private BigDecimal lastSalePrice;
 
     @NotNull
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Архивированность")
     private Boolean archive = false;
+
+    public Product(Long id) { this.id = id; }
 
     @Override
     public boolean equals(Object o) {

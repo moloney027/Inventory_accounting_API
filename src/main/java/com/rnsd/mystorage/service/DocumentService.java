@@ -22,15 +22,17 @@ public class DocumentService {
     private final DocumentMovingRepository documentMovingRepository;
     private final StorageRepository storageRepository;
     private final ProductRepository productRepository;
+    private final InventoryControlRepository inventoryControlRepository;
     private final InventoryControlService inventoryControlService;
 
     @Transactional
     public List<DocumentReceipt> createDocumentReceipt(DocumentReceiptModel documentReceiptModel) {
+        Long storageId = documentReceiptModel.getStorageId();
         List<DocumentReceipt> documentReceiptList = new ArrayList<>();
         String number = documentReceiptModel.getDocumentNumber();
-        Storage storage = storageRepository.findByIdAndArchive(documentReceiptModel.getStorageId(), false)
+        Storage storage = storageRepository.findByIdAndArchive(storageId, false)
                 .orElseThrow(() -> new CustomException(
-                        "Not found storage with id= " + documentReceiptModel.getStorageId(), HttpStatus.BAD_REQUEST
+                        "Not found storage with id= " + storageId, HttpStatus.BAD_REQUEST
                 ));
         for (ProductInDocumentModel productInDocumentModel : documentReceiptModel.getProductInfo()) {
             Product product = productRepository.findByIdAndArchive(productInDocumentModel.getProductId(), false)
@@ -53,11 +55,12 @@ public class DocumentService {
 
     @Transactional
     public List<DocumentSale> createDocumentSale(DocumentSaleModel documentSaleModel) {
+        Long storageId = documentSaleModel.getStorageId();
         List<DocumentSale> documentSaleList = new ArrayList<>();
         String number = documentSaleModel.getDocumentNumber();
-        Storage storage = storageRepository.findByIdAndArchive(documentSaleModel.getStorageId(), false)
+        Storage storage = storageRepository.findByIdAndArchive(storageId, false)
                 .orElseThrow(() -> new CustomException(
-                        "Not found storage with id= " + documentSaleModel.getStorageId(), HttpStatus.BAD_REQUEST
+                        "Not found storage with id= " + storageId, HttpStatus.BAD_REQUEST
                 ));
         for (ProductInDocumentModel productInDocumentModel : documentSaleModel.getProductInfo()) {
             Product product = productRepository.findByIdAndArchive(productInDocumentModel.getProductId(), false)
@@ -67,8 +70,13 @@ public class DocumentService {
                                     HttpStatus.BAD_REQUEST
                             )
                     );
-            BigDecimal price = productInDocumentModel.getPrice();
             Long count = productInDocumentModel.getCount();
+            if (inventoryControlRepository.findByStorageAndProduct(storage, product)
+                    .map(InventoryControl::getCount).orElse(0L) < count) {
+                throw new CustomException("The quantity of the product sold cannot be greater than the quantity of " +
+                        "the item available", HttpStatus.BAD_REQUEST);
+            }
+            BigDecimal price = productInDocumentModel.getPrice();
             product.setLastSalePrice(price);
             DocumentSale documentSale = new DocumentSale(null, number, storage, product, count, price);
             documentSale = documentSaleRepository.save(documentSale);
@@ -80,16 +88,18 @@ public class DocumentService {
 
     @Transactional
     public List<DocumentMoving> createDocumentMoving(DocumentMovingModel documentMovingModel) {
+        Long fromStorageId = documentMovingModel.getFromStorageId();
+        Long toStorageId = documentMovingModel.getToStorageId();
         List<DocumentMoving> documentMovingList = new ArrayList<>();
         String number = documentMovingModel.getDocumentNumber();
-        Storage fromStorage = storageRepository.findByIdAndArchive(documentMovingModel.getFromStorageId(), false)
+        Storage fromStorage = storageRepository.findByIdAndArchive(fromStorageId, false)
                 .orElseThrow(() -> new CustomException(
-                        "Not found from storage with id= " + documentMovingModel.getFromStorageId(),
+                        "Not found from storage with id= " + fromStorageId,
                         HttpStatus.BAD_REQUEST
                 ));
-        Storage toStorage = storageRepository.findByIdAndArchive(documentMovingModel.getToStorageId(), false)
+        Storage toStorage = storageRepository.findByIdAndArchive(toStorageId, false)
                 .orElseThrow(() -> new CustomException(
-                        "Not found to storage with id= " + documentMovingModel.getToStorageId(),
+                        "Not found to storage with id= " + toStorageId,
                         HttpStatus.BAD_REQUEST
                 ));
         for (ProductInDocumentForMovingModel productInDocumentModel : documentMovingModel.getProductInfo()) {
@@ -99,6 +109,11 @@ public class DocumentService {
                             HttpStatus.BAD_REQUEST
                     ));
             Long count = productInDocumentModel.getCount();
+            if (inventoryControlRepository.findByStorageAndProduct(fromStorage, product)
+                    .map(InventoryControl::getCount).orElse(0L) < count) {
+                throw new CustomException("The quantity of product being moved cannot be greater than the quantity of " +
+                        "product available in the first storage", HttpStatus.BAD_REQUEST);
+            }
             DocumentMoving documentMoving = new DocumentMoving(null, number, fromStorage, toStorage, product, count);
             documentMoving = documentMovingRepository.save(documentMoving);
             documentMovingList.add(documentMoving);

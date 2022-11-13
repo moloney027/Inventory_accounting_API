@@ -130,7 +130,7 @@ public class StorageController {
         ).getArchive()) {
             storageRepository.deleteById(id);
         } else {
-            throw new CustomException("Unable to delete non-archived storage");
+            throw new CustomException("Unable to delete non-archived storage", HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok().build();
     }

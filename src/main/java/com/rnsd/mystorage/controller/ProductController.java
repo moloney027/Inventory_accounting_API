@@ -139,7 +139,7 @@ public class ProductController {
         ) {
             productRepository.deleteById(id);
         } else {
-            throw new CustomException("Unable to delete non-archived product");
+            throw new CustomException("Unable to delete non-archived product", HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok().build();
     }

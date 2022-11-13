@@ -58,6 +58,10 @@ class DocumentServiceTest {
         when(productRepository.findByIdAndArchive(productId, false)).thenReturn(Optional.of(product));
     }
 
+    /**
+     * Тест на успешное создание документа "Поступление" с последущим выполнением пересчета цены последней закупки и
+     * пересчета (подсчета) количства товара на складе, на который они поступают
+     */
     @Test
     void createDocumentReceipt() {
         DocumentReceiptModel documentReceiptModel = mock(DocumentReceiptModel.class);
@@ -90,6 +94,10 @@ class DocumentServiceTest {
         assertEquals(afterSaveDocumentReceipt, documentsReceipt.get(0));
     }
 
+    /**
+     * Тест на успешное создание документа "Продажа" с последущим выполнением пересчета цены последней продажи и
+     * пересчета количества товара на складе, с которого списывают товары
+     */
     @Test
     void createDocumentSale() {
         DocumentSaleModel documentSaleModel = mock(DocumentSaleModel.class);
@@ -121,6 +129,10 @@ class DocumentServiceTest {
         assertEquals(afterSaveDocumentSale, documentsSales.get(0));
     }
 
+    /**
+     * Тест на успешное создание документа "Перемещение" с последущим выполнением пересчета количества товара на складе,
+     * с которого списывают товары и пересчета количства товара на складе, на который они поступают
+     */
     @Test
     void createDocumentMoving() {
         when(storageRepository.findByIdAndArchive(secondStorageId, false))

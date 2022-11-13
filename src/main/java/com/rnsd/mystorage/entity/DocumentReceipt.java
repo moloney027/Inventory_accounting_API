@@ -34,7 +34,7 @@ public class DocumentReceipt {
     @JoinColumn(name = "storage_id", referencedColumnName = "id")
     private Storage storage;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;

@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.validation.constraints.Positive;
 
 @Entity
 @AllArgsConstructor
@@ -30,5 +31,6 @@ public class InventoryControl {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
+    @Positive
     private Long count;
 }

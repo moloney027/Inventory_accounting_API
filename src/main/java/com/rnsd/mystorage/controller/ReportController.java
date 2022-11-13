@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -54,7 +55,7 @@ public class ReportController {
                                 product.getArticle(),
                                 product.getName(),
                                 product.getLastPurchasePrice() == null ? "" : product.getLastPurchasePrice().toString(),
-                                product.getLastSalePrice().toString()
+                                product.getLastSalePrice() == null ? "" : product.getLastSalePrice().toString()
                         )
                 ).collect(Collectors.toList())
         );
@@ -79,15 +80,25 @@ public class ReportController {
         List<InventoryControl> inventoryControls = storageId == null ?
                 inventoryControlRepository.findAll() :
                 inventoryControlRepository.findAllByStorage(filterStorage);
-        return ResponseEntity.ok(
-                inventoryControls.stream().map(
+
+        List<ReportBalanceProductsModel> reportBalanceProductsModels = inventoryControls.stream().map(
                         inventoryControl -> new ReportBalanceProductsModel(
                                 inventoryControl.getProduct().getArticle(),
                                 inventoryControl.getProduct().getName(),
                                 inventoryControl.getCount()
                         )
-                ).collect(Collectors.toList())
-        );
+                ).collect(
+                        Collectors.groupingBy(Function.identity(),
+                                Collectors.summingLong(ReportBalanceProductsModel::getBalance))
+                ).entrySet().stream()
+                .map(reportBalanceProductsModelLongEntry -> new ReportBalanceProductsModel(
+                        reportBalanceProductsModelLongEntry.getKey().getArticle(),
+                        reportBalanceProductsModelLongEntry.getKey().getName(),
+                        reportBalanceProductsModelLongEntry.getValue())
+                )
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(reportBalanceProductsModels);
     }
 
 }

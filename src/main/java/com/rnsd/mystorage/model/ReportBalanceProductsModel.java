@@ -17,4 +17,22 @@ public class ReportBalanceProductsModel {
 
     @Schema(description = "Остаток по всем складам")
     private Long balance;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReportBalanceProductsModel that = (ReportBalanceProductsModel) o;
+
+        if (!article.equals(that.article)) return false;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = article.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
+    }
 }

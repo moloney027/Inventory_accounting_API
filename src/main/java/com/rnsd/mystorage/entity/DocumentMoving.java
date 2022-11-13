@@ -28,17 +28,17 @@ public class DocumentMoving {
     @Schema(description = "Номер документа")
     private String number;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "from_storage_id", referencedColumnName = "id")
     private Storage fromStorage;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "to_storage_id", referencedColumnName = "id")
     private Storage toStorage;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;

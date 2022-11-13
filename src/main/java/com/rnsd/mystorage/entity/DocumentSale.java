@@ -29,12 +29,12 @@ public class DocumentSale {
     @Schema(description = "Номер документа")
     private String number;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "storage_id", referencedColumnName = "id")
     private Storage storage;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
