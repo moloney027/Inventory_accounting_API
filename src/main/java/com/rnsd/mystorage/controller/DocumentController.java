@@ -1,12 +1,18 @@
 package com.rnsd.mystorage.controller;
 
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.rnsd.mystorage.entity.DocumentMoving;
 import com.rnsd.mystorage.entity.DocumentReceipt;
 import com.rnsd.mystorage.entity.DocumentSale;
 import com.rnsd.mystorage.exception.CustomException;
-import com.rnsd.mystorage.model.DocumentMovingModel;
-import com.rnsd.mystorage.model.DocumentReceiptModel;
-import com.rnsd.mystorage.model.DocumentSaleModel;
+import com.rnsd.mystorage.model.*;
+import com.rnsd.mystorage.model.csv.DocumentMovingCsvModel;
+import com.rnsd.mystorage.model.csv.DocumentReceiptCsvModel;
+import com.rnsd.mystorage.model.csv.DocumentSaleCsvModel;
 import com.rnsd.mystorage.repository.DocumentMovingRepository;
 import com.rnsd.mystorage.repository.DocumentReceiptRepository;
 import com.rnsd.mystorage.repository.DocumentSaleRepository;
@@ -18,12 +24,22 @@ import lombok.AllArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @AllArgsConstructor
@@ -144,4 +160,174 @@ public class DocumentController {
         return ResponseEntity.ok(documentService.createDocumentMoving(documentMovingModel));
     }
 
+    @Operation(
+            summary = "Добавить новый документ \"Поступление\" в формате CSV",
+            description = "Документ \"Поступление\" заводится при перемещении товара между складами и содержит: " +
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+    )
+    @PostMapping(value = "/upload-csv-receipt", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<List<DocumentReceipt>> uploadCsvDocumentReceipt(@RequestParam("file") MultipartFile file) {
+        List<DocumentReceipt> resultDocumentsReceipt = new ArrayList<>();
+        if (file.isEmpty()) {
+            throw new CustomException("Please select a CSV file to upload", HttpStatus.BAD_REQUEST);
+        } else {
+            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                CsvToBean<DocumentReceiptCsvModel> csvToBean = new CsvToBeanBuilder<DocumentReceiptCsvModel>(reader)
+                        .withType(DocumentReceiptCsvModel.class)
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+                List<DocumentReceiptCsvModel> documentsReceipt = csvToBean.parse();
+                for (DocumentReceiptCsvModel docModel : documentsReceipt) {
+                    resultDocumentsReceipt.addAll(documentService.createDocumentReceipt(new DocumentReceiptModel(
+                            docModel.getNumber(),
+                            docModel.getStorageId(),
+                            List.of(new ProductInDocumentModel(
+                                    docModel.getProductId(),
+                                    docModel.getCount(),
+                                    docModel.getPurchasePrice()
+                            ))
+                    )));
+                }
+            } catch (Exception ex) {
+                throw new CustomException("An error occurred while processing the CSV file", HttpStatus.BAD_REQUEST);
+            }
+        }
+        return ResponseEntity.ok(resultDocumentsReceipt);
+    }
+
+    @Operation(
+            summary = "Добавить новый документ \"Продажа\" в формате CSV",
+            description = "Документ \"Продажа\" заводится при перемещении товара между складами и содержит: " +
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+    )
+    @PostMapping(value = "/upload-csv-sale", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<List<DocumentSale>> uploadCsvDocumentSale(@RequestParam("file") MultipartFile file) {
+        List<DocumentSale> resultDocumentsSale = new ArrayList<>();
+        if (file.isEmpty()) {
+            throw new CustomException("Please select a CSV file to upload", HttpStatus.BAD_REQUEST);
+        } else {
+            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                CsvToBean<DocumentSaleCsvModel> csvToBean = new CsvToBeanBuilder<DocumentSaleCsvModel>(reader)
+                        .withType(DocumentSaleCsvModel.class)
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+                List<DocumentSaleCsvModel> documentsSale = csvToBean.parse();
+                for (DocumentSaleCsvModel docModel : documentsSale) {
+                    resultDocumentsSale.addAll(documentService.createDocumentSale(new DocumentSaleModel(
+                            docModel.getNumber(),
+                            docModel.getStorageId(),
+                            List.of(new ProductInDocumentModel(
+                                    docModel.getProductId(),
+                                    docModel.getCount(),
+                                    docModel.getSalePrice()
+                            ))
+                    )));
+                }
+            } catch (Exception ex) {
+                throw new CustomException("An error occurred while processing the CSV file", HttpStatus.BAD_REQUEST);
+            }
+        }
+        return ResponseEntity.ok(resultDocumentsSale);
+    }
+
+    @Operation(
+            summary = "Добавить новый документ \"Перемещение\" в формате CSV",
+            description = "Документ \"Перемещение\" заводится при перемещении товара между складами и содержит: " +
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+    )
+    @PostMapping(value = "/upload-csv-moving", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<List<DocumentMoving>> uploadCsvDocumentMoving(@RequestParam("file") MultipartFile file) {
+        List<DocumentMoving> resultDocumentsMoving = new ArrayList<>();
+        if (file.isEmpty()) {
+            throw new CustomException("Please select a CSV file to upload", HttpStatus.BAD_REQUEST);
+        } else {
+            try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+                CsvToBean<DocumentMovingCsvModel> csvToBean = new CsvToBeanBuilder<DocumentMovingCsvModel>(reader)
+                        .withType(DocumentMovingCsvModel.class)
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+                List<DocumentMovingCsvModel> documentsMoving = csvToBean.parse();
+                for (DocumentMovingCsvModel docModel : documentsMoving) {
+                    resultDocumentsMoving.addAll(documentService.createDocumentMoving(new DocumentMovingModel(
+                            docModel.getNumber(),
+                            docModel.getFromStorage(),
+                            docModel.getToStorage(),
+                            List.of(new ProductInDocumentForMovingModel(
+                                    docModel.getProductId(),
+                                    docModel.getCount()
+                            ))
+                    )));
+                }
+            } catch (Exception ex) {
+                throw new CustomException("An error occurred while processing the CSV file", HttpStatus.BAD_REQUEST);
+            }
+        }
+        return ResponseEntity.ok(resultDocumentsMoving);
+    }
+
+    @Operation(
+            summary = "Получить все документы \"Поступление\" в формате CSV",
+            description = "Позволяет просмотреть все документы \"Поступление\" в CSV файле, " +
+                    "проведенные для актуальных склада и товаров."
+    )
+    @GetMapping("/export-csv-receipt")
+    public void exportCsvDocumentReceipt(HttpServletResponse response) throws Exception {
+        String filename = "DocumentReceipt.csv";
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        StatefulBeanToCsv<DocumentReceiptCsvModel> writer =
+                new StatefulBeanToCsvBuilder<DocumentReceiptCsvModel>
+                        (response.getWriter())
+                        .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                        .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                        .withOrderedResults(false)
+                        .build();
+        writer.write(StreamSupport.stream(documentReceiptRepository.findAll().spliterator(), false)
+                .map(DocumentReceiptCsvModel::new)
+                .collect(Collectors.toList()));
+    }
+
+    @Operation(
+            summary = "Получить все документы \"Продажа\" в формате CSV",
+            description = "Позволяет постранично просмотреть все документы \"Продажа\" в CSV файле, " +
+                    "проведенные для актуальных склада и товаров."
+    )
+    @GetMapping("/export-csv-sale")
+    public void exportCsvDocumentSale(HttpServletResponse response) throws Exception {
+        String filename = "DocumentSale.csv";
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        StatefulBeanToCsv<DocumentSaleCsvModel> writer =
+                new StatefulBeanToCsvBuilder<DocumentSaleCsvModel>
+                        (response.getWriter())
+                        .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                        .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                        .withOrderedResults(false)
+                        .build();
+        writer.write(StreamSupport.stream(documentSaleRepository.findAll().spliterator(), false)
+                .map(DocumentSaleCsvModel::new)
+                .collect(Collectors.toList()));
+    }
+
+    @Operation(
+            summary = "Получить все документы \"Перемещение\" в формате CSV",
+            description = "Позволяет постранично просмотреть все документы \"Перемещение\" в CSV файле, " +
+                    "проведенные для актуальных склада и товаров."
+    )
+    @GetMapping("/export-csv-moving")
+    public void exportCsvDocumentMoving(HttpServletResponse response) throws Exception {
+        String filename = "DocumentMoving.csv";
+        response.setContentType("text/csv");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        StatefulBeanToCsv<DocumentMovingCsvModel> writer =
+                new StatefulBeanToCsvBuilder<DocumentMovingCsvModel>
+                        (response.getWriter())
+                        .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                        .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                        .withOrderedResults(false)
+                        .build();
+        writer.write(StreamSupport.stream(documentMovingRepository.findAll().spliterator(), false)
+                .map(DocumentMovingCsvModel::new)
+                .collect(Collectors.toList()));
+    }
 }
