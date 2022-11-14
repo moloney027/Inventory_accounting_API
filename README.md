@@ -1,4 +1,4 @@
-# Inventory_accounting_API
+# Inventory accounting API
 
 Для запуска приложения необходимо:
 1. Наличие в PostgreSQL пустой базы данных с названием "storage"
