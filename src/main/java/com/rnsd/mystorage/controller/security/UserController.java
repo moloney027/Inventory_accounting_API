@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @Tag(
-        name = "Взаимодействие с аккаунтами пользователей"
+        name = "Пользователи",
+        description = "Взаимодействие с аккаунтами пользователей"
 )
 @RestController
 @RequestMapping("/api")

@@ -36,7 +36,7 @@ public class AuthService {
     private final Integer keyIterationCount = 100;
 
     /**
-     * Авторизация пользователя с проверкой пароля
+     * Аутентификация пользователя с проверкой пароля
      */
     public JwtResponseModel login(@NonNull JwtRequestModel authRequest) {
         final User user = userRepository.findByLogin(authRequest.getLogin())

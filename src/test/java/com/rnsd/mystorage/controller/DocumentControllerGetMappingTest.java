@@ -36,7 +36,7 @@ class DocumentControllerGetMappingTest {
     @Autowired
     AuthService authService;
 
-    private String  accessToken;
+    private String accessToken;
 
     @BeforeEach
     void setUp() {
@@ -70,7 +70,8 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getDocumentReceiptById() throws Exception {
-        mvc.perform(get("/documents/receipt/{id}", "303").header("Authorization", "Bearer " + accessToken))
+        mvc.perform(get("/documents/receipt/{id}", "303")
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", is("00003R")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
@@ -78,7 +79,8 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getDocumentSaleById() throws Exception {
-        mvc.perform(get("/documents/sale/{id}", "401").header("Authorization", "Bearer " + accessToken))
+        mvc.perform(get("/documents/sale/{id}", "401")
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", is("00001S")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));
@@ -86,7 +88,8 @@ class DocumentControllerGetMappingTest {
 
     @Test
     void getDocumentMovingById() throws Exception {
-        mvc.perform(get("/documents/moving/{id}", "504").header("Authorization", "Bearer " + accessToken))
+        mvc.perform(get("/documents/moving/{id}", "504")
+                        .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", is("00004M")))
                 .andDo(result -> log.info(result.getResponse().getContentAsString()));

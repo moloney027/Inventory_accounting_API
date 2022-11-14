@@ -50,7 +50,9 @@ public class Product {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Архивированность")
     private Boolean archive = false;
 
-    public Product(Long id) { this.id = id; }
+    public Product(Long id) {
+        this.id = id;
+    }
 
     @Override
     public boolean equals(Object o) {

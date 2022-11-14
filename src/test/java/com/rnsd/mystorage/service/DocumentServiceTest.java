@@ -35,14 +35,10 @@ class DocumentServiceTest {
     @Mock InventoryControlService inventoryControlService;
     @InjectMocks DocumentService documentService;
 
-    @Mock
-    Storage storage;
-    @Mock
-    Storage secondStorage;
-    @Mock
-    Product product;
-    @Mock
-    InventoryControl inventoryControl;
+    @Mock Storage storage;
+    @Mock Storage secondStorage;
+    @Mock Product product;
+    @Mock InventoryControl inventoryControl;
 
     String documentNumber = "#123456";
     Long storageId = 1L;

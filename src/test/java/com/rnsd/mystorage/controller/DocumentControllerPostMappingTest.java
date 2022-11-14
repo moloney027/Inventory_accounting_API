@@ -52,7 +52,7 @@ public class DocumentControllerPostMappingTest {
     @Autowired
     AuthService authService;
 
-    private String  accessToken;
+    private String accessToken;
 
     @BeforeEach
     void setUp() {
