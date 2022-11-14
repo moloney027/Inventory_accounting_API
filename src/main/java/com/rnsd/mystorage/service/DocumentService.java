@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сервис для работы с документами "Поступление", "Продажа", "Перемещение"
+ */
 @Service
 @AllArgsConstructor
 public class DocumentService {
@@ -25,6 +28,9 @@ public class DocumentService {
     private final InventoryControlRepository inventoryControlRepository;
     private final InventoryControlService inventoryControlService;
 
+    /**
+     * Создание документа "Поступление" с обновлением цены, а также пересчетом количества товара на складе
+     */
     @Transactional
     public List<DocumentReceipt> createDocumentReceipt(DocumentReceiptModel documentReceiptModel) {
         Long storageId = documentReceiptModel.getStorageId();
@@ -53,6 +59,9 @@ public class DocumentService {
         return documentReceiptList;
     }
 
+    /**
+     * Создание документа "Продажа" с обновлением цены, а также пересчетом количества товара на складе
+     */
     @Transactional
     public List<DocumentSale> createDocumentSale(DocumentSaleModel documentSaleModel) {
         Long storageId = documentSaleModel.getStorageId();
@@ -86,6 +95,9 @@ public class DocumentService {
         return documentSaleList;
     }
 
+    /**
+     * Создание документа "Перемещение" с пересчетом количества товаров на складах
+     */
     @Transactional
     public List<DocumentMoving> createDocumentMoving(DocumentMovingModel documentMovingModel) {
         Long fromStorageId = documentMovingModel.getFromStorageId();

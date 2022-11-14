@@ -3,7 +3,6 @@ package com.rnsd.mystorage.service.security;
 import com.rnsd.mystorage.entity.security.User;
 import com.rnsd.mystorage.entity.security.UserRefreshToken;
 import com.rnsd.mystorage.exception.CustomException;
-import com.rnsd.mystorage.model.security.JwtAuthenticationModel;
 import com.rnsd.mystorage.model.security.JwtRequestModel;
 import com.rnsd.mystorage.model.security.JwtResponseModel;
 import com.rnsd.mystorage.repository.security.RefreshTokenRepository;
@@ -13,7 +12,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -23,6 +21,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
+/**
+ * Сервис для работы с аутентификацией
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -34,10 +35,13 @@ public class AuthService {
     private final Integer keyLength = 35;
     private final Integer keyIterationCount = 100;
 
+    /**
+     * Авторизация пользователя с проверкой пароля
+     */
     public JwtResponseModel login(@NonNull JwtRequestModel authRequest) {
         final User user = userRepository.findByLogin(authRequest.getLogin())
                 .orElseThrow(() -> new CustomException("User not found"));
-        String encryptPassword = encryptPassword(authRequest.getPassword(), user.getPasswordSecret());
+        String encryptPassword = hashPassword(authRequest.getPassword(), user.getPasswordSecret());
         if (user.getPassword().equals(encryptPassword)) {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
@@ -48,6 +52,9 @@ public class AuthService {
         }
     }
 
+    /**
+     * Получение нового access токена взмаен токену с истекшим сроком
+     */
     public JwtResponseModel getAccessToken(@NonNull String refreshToken) {
 
         if (jwtProvider.validateRefreshToken(refreshToken)) {
@@ -63,6 +70,9 @@ public class AuthService {
         return new JwtResponseModel(null, null);
     }
 
+    /**
+     * Получение новых access и refresh токенов взмаен токенам с истекшим сроком
+     */
     public JwtResponseModel refresh(@NonNull String refreshToken) {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
@@ -79,17 +89,19 @@ public class AuthService {
         throw new CustomException("Wrong JWT token");
     }
 
-    public JwtAuthenticationModel getAuthInfo() {
-        return (JwtAuthenticationModel) SecurityContextHolder.getContext().getAuthentication();
-    }
-
+    /**
+     * Генерация ключа для хэширования пароля
+     */
     public String generateSecretPasswordKey() {
         byte[] bytes = new byte[keyLength];
         random.nextBytes(bytes);
         return Encoders.BASE64.encode(bytes);
     }
 
-    public String encryptPassword(String password, String secretPasswordKey) {
+    /**
+     * Хэширование пароля
+     */
+    public String hashPassword(String password, String secretPasswordKey) {
         try {
             SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
             PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), Decoders.BASE64.decode(secretPasswordKey),

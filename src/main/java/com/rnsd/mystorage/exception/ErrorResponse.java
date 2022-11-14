@@ -2,6 +2,9 @@ package com.rnsd.mystorage.exception;
 
 import lombok.Getter;
 
+/**
+ * Модель с сообщением об ошибке
+ */
 @Getter
 public class ErrorResponse {
 

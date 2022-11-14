@@ -6,6 +6,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+/**
+ * Модель для документа "Продажа"
+ */
 @Getter
 public class DocumentSaleModel extends DocumentModel {
 

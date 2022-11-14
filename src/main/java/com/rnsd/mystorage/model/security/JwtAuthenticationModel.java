@@ -8,6 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Модель с пользовательскими данными из JWT
+ */
 @Getter
 @Setter
 public class JwtAuthenticationModel implements Authentication {

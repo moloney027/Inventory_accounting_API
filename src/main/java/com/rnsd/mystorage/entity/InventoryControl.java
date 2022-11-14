@@ -10,6 +10,11 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.Positive;
 
+/**
+ * Организация складского учета. Сюда добавляются результаты проведения всех документов. С поступлением нового
+ * документа для некоторого склада и товара(ов), нужные значения в соответствующей этим складу и товару(ам) записи
+ * в этой таблице обновятся
+ */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor

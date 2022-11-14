@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit тесты для методов сервиса складского учета
+ */
 @ExtendWith(MockitoExtension.class)
 class InventoryControlServiceTest {
 

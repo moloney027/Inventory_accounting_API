@@ -16,6 +16,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+/**
+ * Фильтр, осуществляющий аутентификацию пользователей
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

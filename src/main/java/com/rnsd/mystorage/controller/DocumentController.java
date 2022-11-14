@@ -127,7 +127,8 @@ public class DocumentController {
     @Operation(
             summary = "Добавить новый документ \"Поступление\"",
             description = "Документ \"Поступление\" заводится при поступлении товара на склад и содержит: " +
-                    "список товаров, их количество, закупочные цены, а также склад, на который поступают товары."
+                    "список товаров, их количество, закупочные цены, а также склад, на который поступают товары. " +
+                    "Возвращает документ."
     )
     @PostMapping("/receipt")
     ResponseEntity<List<DocumentReceipt>> createDocumentReceipt(
@@ -139,7 +140,8 @@ public class DocumentController {
     @Operation(
             summary = "Добавить новый документ \"Продажа\"",
             description = "Документ \"Продажа\" заводится при продаже товара со склада и содержит: " +
-                    "список товаров, их количество, цены продажи, а также склад, с которого списываются товары."
+                    "список товаров, их количество, цены продажи, а также склад, с которого списываются товары." +
+                    "Возвращает документ."
     )
     @PostMapping("/sale")
     ResponseEntity<List<DocumentSale>> createDocumentSale(
@@ -151,7 +153,8 @@ public class DocumentController {
     @Operation(
             summary = "Добавить новый документ \"Перемещение\"",
             description = "Документ \"Перемещение\" заводится при перемещении товара между складами и содержит: " +
-                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары." +
+                    "Возвращает документ."
     )
     @PostMapping("/moving")
     ResponseEntity<List<DocumentMoving>> createDocumentMoving(
@@ -163,7 +166,8 @@ public class DocumentController {
     @Operation(
             summary = "Добавить новый документ \"Поступление\" в формате CSV",
             description = "Документ \"Поступление\" заводится при перемещении товара между складами и содержит: " +
-                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары." +
+                    "Возвращает документ."
     )
     @PostMapping(value = "/upload-csv-receipt", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<List<DocumentReceipt>> uploadCsvDocumentReceipt(@RequestParam("file") MultipartFile file) {
@@ -198,7 +202,8 @@ public class DocumentController {
     @Operation(
             summary = "Добавить новый документ \"Продажа\" в формате CSV",
             description = "Документ \"Продажа\" заводится при перемещении товара между складами и содержит: " +
-                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары." +
+                    "Возвращает документ."
     )
     @PostMapping(value = "/upload-csv-sale", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<List<DocumentSale>> uploadCsvDocumentSale(@RequestParam("file") MultipartFile file) {
@@ -233,7 +238,8 @@ public class DocumentController {
     @Operation(
             summary = "Добавить новый документ \"Перемещение\" в формате CSV",
             description = "Документ \"Перемещение\" заводится при перемещении товара между складами и содержит: " +
-                    "список товаров, их количество, а также склады, между которыми перемещаются товары."
+                    "список товаров, их количество, а также склады, между которыми перемещаются товары." +
+                    "Возвращает документ."
     )
     @PostMapping(value = "/upload-csv-moving", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<List<DocumentMoving>> uploadCsvDocumentMoving(@RequestParam("file") MultipartFile file) {
@@ -289,7 +295,7 @@ public class DocumentController {
 
     @Operation(
             summary = "Получить все документы \"Продажа\" в формате CSV",
-            description = "Позволяет постранично просмотреть все документы \"Продажа\" в CSV файле, " +
+            description = "Позволяет просмотреть все документы \"Продажа\" в CSV файле, " +
                     "проведенные для актуальных склада и товаров."
     )
     @GetMapping("/export-csv-sale")
@@ -311,7 +317,7 @@ public class DocumentController {
 
     @Operation(
             summary = "Получить все документы \"Перемещение\" в формате CSV",
-            description = "Позволяет постранично просмотреть все документы \"Перемещение\" в CSV файле, " +
+            description = "Позволяет просмотреть все документы \"Перемещение\" в CSV файле, " +
                     "проведенные для актуальных склада и товаров."
     )
     @GetMapping("/export-csv-moving")

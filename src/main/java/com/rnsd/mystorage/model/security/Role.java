@@ -3,6 +3,9 @@ package com.rnsd.mystorage.model.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Роль пользователя
+ */
 @RequiredArgsConstructor
 public enum Role implements GrantedAuthority {
 

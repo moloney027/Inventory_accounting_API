@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
 
+/**
+ * Обработчик различных возвращаемых исключений
+ */
 @RestControllerAdvice
 @Slf4j
 public class ExceptionApiHandler {

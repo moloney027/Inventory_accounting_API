@@ -10,10 +10,14 @@ import com.rnsd.mystorage.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для работы с отчетами
+ */
 @Service
 @AllArgsConstructor
 public class ReportService {
@@ -21,6 +25,10 @@ public class ReportService {
     private final InventoryControlRepository inventoryControlRepository;
     private final ProductRepository productRepository;
 
+    /**
+     * Создает отчет "Общий список товаров"
+     */
+    @Transactional
     public List<ReportProductsListModel> createProductsListReport(String nameProduct) {
         List<Product> products = nameProduct == null || nameProduct.isEmpty() ?
                 productRepository.findByArchive(false) :
@@ -36,6 +44,10 @@ public class ReportService {
         );
     }
 
+    /**
+     * Создает отчет "Остатки товаров на складах"
+     */
+    @Transactional
     public List<ReportBalanceProductsModel> createBalanceProductsReport(Long storageId) {
         Storage filterStorage = new Storage(storageId);
         List<InventoryControl> inventoryControls = storageId == null ?

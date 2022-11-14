@@ -7,6 +7,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
+/**
+ * Модель для описания списка товаров для документов "Поступление" и "Продажа"
+ */
 @AllArgsConstructor
 @Getter
 public class ProductInDocumentModel {

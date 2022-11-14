@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+/**
+ * Генерирация и валидация access и refresh токенов
+ */
 @Slf4j
 @Component
 public class JwtProvider {
@@ -32,6 +35,9 @@ public class JwtProvider {
         this.jwtRefreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtRefreshSecret));
     }
 
+    /**
+     * Создание access токена для пользователя
+     */
     public String generateAccessToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant accessExpirationInstant = now.plusMinutes(120).atZone(ZoneId.systemDefault()).toInstant();
@@ -45,6 +51,9 @@ public class JwtProvider {
                 .compact();
     }
 
+    /**
+     * Создание refresh токена для пользователя
+     */
     public String generateRefreshToken(@NonNull User user) {
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant = now.plusDays(1).atZone(ZoneId.systemDefault()).toInstant();
@@ -56,10 +65,16 @@ public class JwtProvider {
                 .compact();
     }
 
+    /**
+     * Проверка валидности access токена
+     */
     public boolean validateAccessToken(@NonNull String accessToken) {
         return validateToken(accessToken, jwtAccessSecret);
     }
 
+    /**
+     * Проверка валидности refresh токена
+     */
     public boolean validateRefreshToken(@NonNull String refreshToken) {
         return validateToken(refreshToken, jwtRefreshSecret);
     }

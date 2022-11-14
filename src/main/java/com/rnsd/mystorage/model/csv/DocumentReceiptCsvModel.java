@@ -8,6 +8,9 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+/**
+ * Модель для перевода документа "Поступление" в CSV формат
+ */
 @Getter
 @NoArgsConstructor
 @Setter

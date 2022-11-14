@@ -9,6 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
+/**
+ * Связь пользователя с токеном
+ */
 @Entity
 @Getter
 @Setter

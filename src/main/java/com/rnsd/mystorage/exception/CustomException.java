@@ -3,6 +3,9 @@ package com.rnsd.mystorage.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Exception для обработки пользовательских ошибок
+ */
 @Getter
 public class CustomException extends RuntimeException {
 

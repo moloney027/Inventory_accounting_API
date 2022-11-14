@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Модель для перевода документа "Перемещение" в CSV формат
+ */
 @Getter
 @NoArgsConstructor
 @Setter

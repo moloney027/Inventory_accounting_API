@@ -9,6 +9,9 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+/**
+ * Модель для перевода документа "Продажа" в CSV формат
+ */
 @Getter
 @NoArgsConstructor
 @Setter
