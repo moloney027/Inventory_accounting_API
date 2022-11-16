@@ -14,4 +14,4 @@
 API для работы с сущностями оперирует форматом JSON. С документами и отчетами работа может проводится как в формате JSON, так и в формате CSV. Визуализация API через Swagger UI. 
 
 ## Используемые технологии
-Spring, PostgreSQL, H2, Maven, Flyway, Lombok, JJWT, SpringDoc.
+Spring Boot, SpringSecurity, Spring Data JPA, Spring Web, SpringDoc, PostgreSQL, H2, Maven, Flyway, JJWT, Opencsv, Lombok.
